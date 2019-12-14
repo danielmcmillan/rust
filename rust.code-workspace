@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "collections"
+		},
+		{
+			"path": "hello_rust"
+		},
+		{
+			"path": "variables"
+		},
+		{
+			"path": "rectangle"
+		}
+	],
+	"settings": {}
+}
