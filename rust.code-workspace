@@ -1,23 +1,26 @@
 {
-	"folders": [
-		{
-			"path": "collections"
-		},
-		{
-			"path": "hello_rust"
-		},
-		{
-			"path": "variables"
-		},
-		{
-			"path": "rectangle"
-		},
-		{
-			"path": "minigrep"
-		},
-		{
-			"path": "closures"
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "collections"
+    },
+    {
+      "path": "hello_rust"
+    },
+    {
+      "path": "variables"
+    },
+    {
+      "path": "rectangle"
+    },
+    {
+      "path": "minigrep"
+    },
+    {
+      "path": "closures"
+    },
+    {
+      "path": "smart_pointers"
+    }
+  ],
+  "settings": {}
 }
