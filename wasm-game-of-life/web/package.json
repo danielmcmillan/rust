@@ -1,15 +1,30 @@
 {
-  "name": "web",
-  "version": "1.0.0",
-  "description": "",
+  "name": "wasm-game-of-life-web",
+  "version": "0.1.0",
   "main": "index.js",
-  "dependencies": {
-    "light-server": "^2.6.4"
-  },
-  "devDependencies": {},
   "scripts": {
-    "start": "rm -rf pkg && cp -r ../pkg ./ && light-server -s ."
+    "build": "webpack --config webpack.config.js",
+    "start": "webpack-dev-server"
   },
-  "author": "",
-  "license": "ISC"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rustwasm/create-wasm-app.git"
+  },
+  "keywords": [
+    "webassembly",
+    "wasm",
+    "rust",
+    "webpack"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/rustwasm/create-wasm-app#readme",
+  "dependencies": {
+    "wasm-game-of-life": "file:../pkg"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^5.0.0",
+    "webpack": "^4.29.3",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.5"
+  }
 }
