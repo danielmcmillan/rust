@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #universe {
+      line-height: 0.6;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="universe"></canvas>
+  <script src="/pkg/wasm_game_of_life.js" type="module"></script>
+  <script type="module">
+    import init, { Universe, Cell } from "/pkg/wasm_game_of_life.js";
+
+    const CELL_SIZE = 5;
+    const GRID_COLOR = "#CCCCCC";
+    const DEAD_COLOR = "#FFFFFF";
+    const ALIVE_COLOR = "#000000";
+
+    async function main() {
+      window.wasm = await init();
+      const universe = Universe.new();
+      const width = universe.width();
+      const height = universe.height();
+      const canvas = document.getElementById("universe");
+      canvas.height = (CELL_SIZE + 1) * height + 1;
+      canvas.width = (CELL_SIZE + 1) * width + 1;
+
+      const ctx = canvas.getContext('2d');
+
+      function renderLoop() {
+        const ptr = universe.cells();
+        const cells = new Uint8Array(wasm.memory.buffer, ptr, width * height);
+
+        ctx.beginPath();
+        for (let y = 0; y < height; ++y) {
+          for (let x = 0; x < width; ++x) {
+            ctx.fillStyle = cells[y * width + x] === Cell.Dead
+              ? DEAD_COLOR
+              : ALIVE_COLOR;
+
+            ctx.fillRect(
+              y * (CELL_SIZE + 1) + 1,
+              x * (CELL_SIZE + 1) + 1,
+              CELL_SIZE,
+              CELL_SIZE
+            );
+          }
+        }
+        ctx.stroke();
+
+        universe.tick();
+        requestAnimationFrame(renderLoop);
+      };
+
+      requestAnimationFrame(renderLoop);
+    }
+    main();
+  </script>
+</body>
+
+</html>

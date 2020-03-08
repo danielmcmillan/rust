@@ -20,6 +20,9 @@
     },
     {
       "path": "smart_pointers"
+    },
+    {
+      "path": "wasm-game-of-life"
     }
   ],
   "settings": {}

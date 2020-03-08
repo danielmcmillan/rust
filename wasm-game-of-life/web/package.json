@@ -1,0 +1,15 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "light-server": "^2.6.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "rm -rf pkg && cp -r ../pkg ./ && light-server -s ."
+  },
+  "author": "",
+  "license": "ISC"
+}
