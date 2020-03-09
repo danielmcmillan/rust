@@ -13,6 +13,7 @@ canvas.height = (CELL_SIZE + 1) * height + 1;
 canvas.width = (CELL_SIZE + 1) * width + 1;
 
 const ctx = canvas.getContext('2d');
+let animationId;
 
 function draw() {
     const ptr = universe.cells();
@@ -42,7 +43,17 @@ function renderLoop() {
     draw();
     universe.tick();
 
-    requestAnimationFrame(renderLoop);
+    animationId = requestAnimationFrame(renderLoop);
 };
 
-requestAnimationFrame(renderLoop);
+function handlePlayPause() {
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = undefined;
+    } else {
+        animationId = requestAnimationFrame(renderLoop);
+    }
+}
+
+handlePlayPause();
+document.getElementById('play-button').addEventListener('click', handlePlayPause);
