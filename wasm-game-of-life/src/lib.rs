@@ -35,8 +35,8 @@ pub struct Universe {
 impl Universe {
     pub fn new() -> Universe {
         utils::set_panic_hook();
-        let width = 128;
-        let height = 64;
+        let width = 32;
+        let height = 32;
         let size = (width * height) as usize;
         let mut cells = FixedBitSet::with_capacity(size);
 
@@ -89,19 +89,35 @@ impl Universe {
         self.to_string()
     }
 
-    fn get_index(&self, row: u32, column: u32) -> usize {
-        (row * self.width + column) as usize
+    pub fn toggle(&mut self, row: u32, col: u32) {
+        self.cells.toggle(self.get_index(row, col));
     }
 
-    fn live_neighbour_count(&self, row: u32, column: u32) -> u8 {
+    pub fn clear(&mut self) {
+        self.cells.clear();
+    }
+
+    pub fn glider(&mut self, row: u32, col: u32) {
+        self.cells.set(self.get_index(row - 1, col), true);
+        self.cells.set(self.get_index(row, col + 1), true);
+        self.cells.set(self.get_index(row + 1, col - 1), true);
+        self.cells.set(self.get_index(row + 1, col), true);
+        self.cells.set(self.get_index(row + 1, col + 1), true);
+    }
+
+    fn get_index(&self, row: u32, col: u32) -> usize {
+        let row = (row + self.height) % self.height;
+        let col = (col + self.width) % self.width();
+
+        (row * self.width + col) as usize
+    }
+
+    fn live_neighbour_count(&self, row: u32, col: u32) -> u8 {
         let mut count = 0;
         for row_offset in [self.height - 1, 0, 1].iter().cloned() {
             for col_offset in [self.width - 1, 0, 1].iter().cloned() {
                 if row_offset != 0 || col_offset != 0 {
-                    let index = self.get_index(
-                        (row + row_offset) % self.height,
-                        (column + col_offset) % self.width,
-                    );
+                    let index = self.get_index(row + row_offset, col + col_offset);
                     count += self.cells[index] as u8;
                 }
             }

@@ -1,7 +1,7 @@
 import { Universe, Cell } from "wasm-game-of-life";
 import { memory } from "wasm-game-of-life/wasm_game_of_life_bg";
 
-const CELL_SIZE = 5;
+const CELL_SIZE = 10;
 const DEAD_COLOR = "#FFFFFF";
 const ALIVE_COLOR = "#000000";
 
@@ -11,6 +11,7 @@ const height = universe.height();
 const canvas = document.getElementById("universe");
 canvas.height = (CELL_SIZE + 1) * height + 1;
 canvas.width = (CELL_SIZE + 1) * width + 1;
+const playButton = document.getElementById('play-button');
 
 const ctx = canvas.getContext('2d');
 let animationId;
@@ -46,14 +47,58 @@ function renderLoop() {
     animationId = requestAnimationFrame(renderLoop);
 };
 
-function handlePlayPause() {
+function play() {
+    animationId = requestAnimationFrame(renderLoop);
+    playButton.textContent = 'Pause';
+}
+
+function pause() {
     if (animationId) {
         cancelAnimationFrame(animationId);
         animationId = undefined;
-    } else {
-        animationId = requestAnimationFrame(renderLoop);
+        draw();
+        playButton.textContent = 'Play';
     }
 }
 
-handlePlayPause();
-document.getElementById('play-button').addEventListener('click', handlePlayPause);
+function handleClick(e) {
+    const { left: canvasX, top: canvasY } = e.target.getBoundingClientRect();
+    const { clientX, clientY } = e;
+    const x = clientX - canvasX;
+    const y = clientY - canvasY;
+    const row = Math.floor((y - 1) / (CELL_SIZE + 1));
+    const col = Math.floor((x - 1) / (CELL_SIZE + 1));
+    console.log(e);
+    if (e.ctrlKey) {
+        universe.glider(row, col);
+    } else {
+        universe.toggle(row, col);
+    }
+    draw();
+}
+
+function handlePlayPause() {
+    if (animationId) {
+        pause();
+    } else {
+        play();
+    }
+}
+
+function handleStep() {
+    pause();
+    universe.tick();
+    draw();
+}
+
+function handleClear() {
+    pause();
+    universe.clear();
+    draw();
+}
+
+play();
+canvas.addEventListener('click', handleClick);
+playButton.addEventListener('click', handlePlayPause);
+document.getElementById('step-button').addEventListener('click', handleStep);
+document.getElementById('clear-button').addEventListener('click', handleClear);
