@@ -21,15 +21,21 @@
       line-height: 0.6;
       background-color: #eee;
     }
+
+    #fps {
+      white-space: pre;
+      font-family: monospace;
+    }
   </style>
 
 </head>
 
 <body>
   <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
-  <button id="play-button">Play/Pause</button>
+  <button id="play-button">Pause</button>
   <button id="step-button">Step</button>
   <button id="clear-button">Clear</button>
+  <div id="fps"></div>
   <canvas id="universe"></canvas>
   <script src="./bootstrap.js"></script>
 </body>

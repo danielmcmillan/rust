@@ -1,6 +1,49 @@
 import { Universe, Cell } from "wasm-game-of-life";
 import { memory } from "wasm-game-of-life/wasm_game_of_life_bg";
 
+class Fps {
+    constructor() {
+        this.el = document.getElementById('fps');
+        this.frames = [];
+        this.lastFrameTimestamp = performance.now();
+    }
+
+    render() {
+        // Convert the delta time since the last frame render into a measure
+        // of frames per second.
+        const now = performance.now();
+        const delta = now - this.lastFrameTimeStamp;
+        this.lastFrameTimeStamp = now;
+        const fps = 1 / delta * 1000;
+
+        // Save only the latest 100 timings.
+        this.frames.push(fps);
+        if (this.frames.length > 100) {
+            this.frames.shift();
+        }
+
+        // Find the max, min, and mean of our 100 latest timings.
+        let min = Infinity;
+        let max = -Infinity;
+        let sum = 0;
+        for (let i = 0; i < this.frames.length; i++) {
+            sum += this.frames[i];
+            min = Math.min(this.frames[i], min);
+            max = Math.max(this.frames[i], max);
+        }
+        let mean = sum / this.frames.length;
+
+        // Render the statistics.
+        this.el.textContent = `
+Frames per Second:
+         latest = ${Math.round(fps)}
+avg of last 100 = ${Math.round(mean)}
+min of last 100 = ${Math.round(min)}
+max of last 100 = ${Math.round(max)}
+`.trim();
+    }
+}
+
 const CELL_SIZE = 10;
 const DEAD_COLOR = "#FFFFFF";
 const ALIVE_COLOR = "#000000";
@@ -13,8 +56,9 @@ canvas.height = (CELL_SIZE + 1) * height + 1;
 canvas.width = (CELL_SIZE + 1) * width + 1;
 const playButton = document.getElementById('play-button');
 
+const fps = new Fps();
 const ctx = canvas.getContext('2d');
-let animationId;
+let paused = false;
 
 function draw() {
     const ptr = universe.cells();
@@ -41,24 +85,24 @@ function draw() {
 }
 
 function renderLoop() {
-    draw();
-    universe.tick();
+    fps.render();
 
-    animationId = requestAnimationFrame(renderLoop);
+    draw();
+    if (!paused) {
+        universe.tick();
+    }
+
+    requestAnimationFrame(renderLoop);
 };
 
 function play() {
-    animationId = requestAnimationFrame(renderLoop);
+    paused = false;
     playButton.textContent = 'Pause';
 }
 
 function pause() {
-    if (animationId) {
-        cancelAnimationFrame(animationId);
-        animationId = undefined;
-        draw();
-        playButton.textContent = 'Play';
-    }
+    paused = true;
+    playButton.textContent = 'Play';
 }
 
 function handleClick(e) {
@@ -78,10 +122,10 @@ function handleClick(e) {
 }
 
 function handlePlayPause() {
-    if (animationId) {
-        pause();
-    } else {
+    if (paused) {
         play();
+    } else {
+        pause();
     }
 }
 
@@ -97,7 +141,7 @@ function handleClear() {
     draw();
 }
 
-play();
+requestAnimationFrame(renderLoop);
 canvas.addEventListener('click', handleClick);
 playButton.addEventListener('click', handlePlayPause);
 document.getElementById('step-button').addEventListener('click', handleStep);
