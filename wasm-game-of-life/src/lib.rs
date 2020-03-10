@@ -35,13 +35,13 @@ pub struct Universe {
 impl Universe {
     pub fn new() -> Universe {
         utils::set_panic_hook();
-        let width = 32;
-        let height = 32;
+        let width = 128;
+        let height = 128;
         let size = (width * height) as usize;
         let mut cells = FixedBitSet::with_capacity(size);
 
         for i in 0..size {
-            if i % 3 == 0 || i % 7 == 0 {
+            if i % 2 == 0 || i % 7 == 0 {
                 cells.set(i, true);
             }
         }

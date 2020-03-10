@@ -64,21 +64,24 @@ function draw() {
     const ptr = universe.cells();
     const cells = new Uint8Array(memory.buffer, ptr, width * height / 8);
     ctx.beginPath();
-    for (let y = 0; y < height; ++y) {
-        for (let x = 0; x < width; ++x) {
-            const index = y * width + x;
-            const cellByte = (index / 8) >>> 0;
-            const byteIndex = index % 8;
-            ctx.fillStyle = (cells[cellByte] & (1 << byteIndex)) === 0
-                ? DEAD_COLOR
-                : ALIVE_COLOR;
+    for (const alive of [true, false]) {
+        ctx.fillStyle = alive ? ALIVE_COLOR : DEAD_COLOR;
 
-            ctx.fillRect(
-                x * (CELL_SIZE + 1) + 1,
-                y * (CELL_SIZE + 1) + 1,
-                CELL_SIZE,
-                CELL_SIZE
-            );
+        for (let row = 0; row < height; ++row) {
+            for (let col = 0; col < width; ++col) {
+                const index = row * width + col;
+                const cellByte = (index / 8) >>> 0;
+                const byteIndex = index % 8;
+                const cellAlive = (cells[cellByte] & (1 << byteIndex)) !== 0;
+                if (alive === cellAlive) {
+                    ctx.fillRect(
+                        col * (CELL_SIZE + 1) + 1,
+                        row * (CELL_SIZE + 1) + 1,
+                        CELL_SIZE,
+                        CELL_SIZE
+                    );
+                }
+            }
         }
     }
     ctx.stroke();
@@ -106,12 +109,18 @@ function pause() {
 }
 
 function handleClick(e) {
-    const { left: canvasX, top: canvasY } = e.target.getBoundingClientRect();
+    const {
+        left: canvasX,
+        top: canvasY,
+        width: canvasWidth,
+        height: canvasHeight,
+    } = e.target.getBoundingClientRect();
+    const cellSize = Math.min((canvasWidth - 1) / width, (canvasHeight - 1) / height) - 1;
     const { clientX, clientY } = e;
     const x = clientX - canvasX;
     const y = clientY - canvasY;
-    const row = Math.floor((y - 1) / (CELL_SIZE + 1));
-    const col = Math.floor((x - 1) / (CELL_SIZE + 1));
+    const row = Math.floor((y - 1) / (cellSize + 1));
+    const col = Math.floor((x - 1) / (cellSize + 1));
     console.log(e);
     if (e.ctrlKey) {
         universe.glider(row, col);
