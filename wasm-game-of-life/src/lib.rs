@@ -29,6 +29,7 @@ pub struct Universe {
     width: u32,
     height: u32,
     cells: FixedBitSet,
+    next_cells: FixedBitSet,
 }
 
 #[wasm_bindgen]
@@ -50,27 +51,30 @@ impl Universe {
             width,
             height,
             cells,
+            next_cells: FixedBitSet::with_capacity(size),
         }
     }
 
     pub fn tick(&mut self) {
-        let mut next = self.cells.clone();
-        for row in 0..self.height {
-            for col in 0..self.width {
-                let index = self.get_index(row, col);
-                let cell = self.cells[index];
-                let neighbour_count = self.live_neighbour_count(row, col);
-                next.set(
-                    index,
-                    match (cell, neighbour_count) {
-                        (true, 2..=3) => true,
-                        (false, 3) => true,
-                        _ => false,
-                    },
-                );
+        self.next_cells.clone_from(&self.cells);
+        {
+            for row in 0..self.height {
+                for col in 0..self.width {
+                    let index = self.get_index(row, col);
+                    let cell = self.cells[index];
+                    let neighbour_count = self.live_neighbour_count(row, col);
+                    self.next_cells.set(
+                        index,
+                        match (cell, neighbour_count) {
+                            (true, 2..=3) => true,
+                            (false, 3) => true,
+                            _ => false,
+                        },
+                    );
+                }
             }
         }
-        self.cells = next;
+        std::mem::swap(&mut self.cells, &mut self.next_cells);
     }
 
     pub fn cells(&self) -> *const u32 {
