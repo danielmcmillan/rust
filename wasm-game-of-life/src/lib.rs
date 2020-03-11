@@ -98,16 +98,26 @@ impl Universe {
     }
 
     pub fn glider(&mut self, row: u32, col: u32) {
-        self.cells.set(self.get_index(row - 1, col), true);
+        self.cells
+            .set(self.get_index(row + self.height() - 1, col), true);
         self.cells.set(self.get_index(row, col + 1), true);
-        self.cells.set(self.get_index(row + 1, col - 1), true);
+        self.cells
+            .set(self.get_index(row + 1, col + self.width() - 1), true);
         self.cells.set(self.get_index(row + 1, col), true);
         self.cells.set(self.get_index(row + 1, col + 1), true);
     }
 
     fn get_index(&self, row: u32, col: u32) -> usize {
-        let row = (row + self.height) % self.height;
-        let col = (col + self.width) % self.width();
+        let row = match row {
+            r if r < self.height() => r,
+            r if r == self.height() => 0,
+            r => r - self.height(),
+        };
+        let col = match col {
+            c if c < self.width() => c,
+            c if c == self.width() => 0,
+            c => c - self.width(),
+        };
 
         (row * self.width + col) as usize
     }
